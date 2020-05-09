@@ -1,13 +1,13 @@
 <template>
-  <div class="listmap">
-    <div class="title">Service Lounge</div>
+  <div class="listmap" v-if="directList">
+    <div class="title">{{ directList.title }}</div>
     <div class="li">
       <img :src="img.IconAddressPin" alt="img" />
-      <div class="add">{{directLists.addressPin}}</div>
+      <div class="add">{{ directLists.address }}</div>
     </div>
     <div class="li">
       <img :src="img.IconPhone" alt="img" />
-      <div class="phone">{{directLists.phone}}</div>
+      <div class="phone">{{ directLists.phone }}</div>
     </div>
     <div class="btn">
       Directions
@@ -30,6 +30,7 @@ export default {
   },
   mounted() {
     // this.init();
+    console.log('777',this.directList)
   },
   methods: {}
 };

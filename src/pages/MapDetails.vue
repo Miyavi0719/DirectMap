@@ -4,7 +4,7 @@
     <!-- <pre id="info"></pre> -->
     <!-- <pre id='coordinates' class='coordinates'></pre> -->
     <div class="list">
-      <directList :directList="directList"></directList>
+      <directList :directList="itemPlace"></directList>
     </div>
   </div>
 </template>
@@ -12,7 +12,7 @@
 import mapboxgl from "mapbox-gl";
 import icon from "../assets/pin.png";
 import directList from "../components/list";
-
+import { getPlace, get } from '../../test/request/api.js'
 export default {
   data() {
     return {
@@ -25,17 +25,17 @@ export default {
         // Some Swiper option/callback...
       },
       icon: icon,
-      directList: {
-        addressPin: "Piazza dei Cinquecento, 00185 Roma RM, Italy",
-        phone: "+39 800 305 357"
-      },
-      location: {}
+      // directList: {
+      //   addressPin: "Piazza dei Cinquecento, 00185 Roma RM, Italy",
+      //   phone: "+39 800 305 357"
+      // },
+      itemPlace: {},
+      location: {},
     };
-  },
-  computed: {
   },
   mounted() {
     this.getToken()
+    this.getPlace()
     this.init();
   },
   methods: {
@@ -49,7 +49,6 @@ export default {
       let value = url.slice(index + 1)
       // 分割不同参数
       let ary = value.split('&')
-      console.log(url)
       // 得到token
       let tokenAry = ary[0].split('=')
       if (tokenAry[0] !== 'token') { return }
@@ -58,8 +57,13 @@ export default {
         BearerToken: tokenAry[1]
       })
       // 得到经纬度
-      this.location = ary[1].split('=')
-      console.log('123',this.location)
+      let longitude = ary[1].split('=')[1]
+      let latitude = ary[2].split('=')[1]
+      this.location = {
+        longitude,
+        latitude
+      }
+      console.log('456',this.location)
     },
     // 请求所有站点
     async getPlace () {
@@ -69,25 +73,25 @@ export default {
         'include': '5'
       })
       let i = 0,
+        list = [],
+        j = 0,
         length = items.length
       for (i; i < length; i++) {
-        this.allPlace.push({
+        list.push({
           title: items[i].fields.title,
           address: items[i].fields.address,
           longitude: items[i].fields.location.lon,
           latitude: items[i].fields.location.lat,
           phone: "+39 800 305 357"
         })
-        this.list.push({
-          'type': 'Feature',
-          'geometry': {
-            'type': 'Point',
-            'title': i,
-            'coordinates': [items[i].fields.location.lon, items[i].fields.location.lat]
-          }
-        })
       }
-      console.log(this.list)
+      let len = list.length
+      for (j; j < len; j++) {
+        if (list[j].longitude == this.location.longitude && list[j].latitude == this.location.latitude) {
+          this.itemPlace = list[j]
+        }
+      }
+      console.log('222',this.itemPlace)
     },
     // 初始化
     init() {
@@ -98,7 +102,7 @@ export default {
       const map = new mapboxgl.Map({
         container: this.$refs.basicMapbox,
         style: "mapbox://styles/mapbox/navigation-guidance-day-v4",
-        center: [119.545181, 39.91444], // 设置地图中心
+        center: [that.location.longitude, that.location.latitude], // 设置地图中心
         zoom: 12 // 设置地图比例
       });
 
@@ -117,7 +121,7 @@ export default {
                     type: "Feature",
                     geometry: {
                       type: "Point",
-                      coordinates: [119.545181, 39.91444]
+                      coordinates: [that.location.longitude, that.location.latitude]
                     }
                   }
                 ]
