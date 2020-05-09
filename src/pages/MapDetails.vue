@@ -28,15 +28,67 @@ export default {
       directList: {
         addressPin: "Piazza dei Cinquecento, 00185 Roma RM, Italy",
         phone: "+39 800 305 357"
-      }
+      },
+      location: {}
     };
   },
   computed: {
   },
   mounted() {
+    this.getToken()
     this.init();
   },
   methods: {
+    // 获取并保存token
+    getToken () {
+      // 获取网址
+      let url = decodeURI(window.location.href)
+      // 找到问号索引
+      let index = url.indexOf('?')
+      // 截取所有参数
+      let value = url.slice(index + 1)
+      // 分割不同参数
+      let ary = value.split('&')
+      console.log(url)
+      // 得到token
+      let tokenAry = ary[0].split('=')
+      if (tokenAry[0] !== 'token') { return }
+      // 存储token
+      window.localStorage.setItem('user', {
+        BearerToken: tokenAry[1]
+      })
+      // 得到经纬度
+      this.location = ary[1].split('=')
+      console.log('123',this.location)
+    },
+    // 请求所有站点
+    async getPlace () {
+      let { data: { items } } = await getPlace({
+        'access_token': 'OLsleutsb2eiV4BCNAuk5IuuXZWA_R6Wdmtua6prg1c',
+        'sys.contentType.sys.id': 'location',
+        'include': '5'
+      })
+      let i = 0,
+        length = items.length
+      for (i; i < length; i++) {
+        this.allPlace.push({
+          title: items[i].fields.title,
+          address: items[i].fields.address,
+          longitude: items[i].fields.location.lon,
+          latitude: items[i].fields.location.lat,
+          phone: "+39 800 305 357"
+        })
+        this.list.push({
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'title': i,
+            'coordinates': [items[i].fields.location.lon, items[i].fields.location.lat]
+          }
+        })
+      }
+      console.log(this.list)
+    },
     // 初始化
     init() {
       let that = this;
@@ -105,4 +157,3 @@ export default {
   }
 }
 </style>
-

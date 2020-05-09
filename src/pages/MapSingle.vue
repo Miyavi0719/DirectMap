@@ -4,13 +4,14 @@
     <!-- <pre id="info"></pre> -->
     <!-- <pre id='coordinates' class='coordinates'></pre> -->
     <swiper class="list" ref="mySwiper" :options="swiperOptions">
-      <swiper-slide v-for="(item,index) in directList" :key='index'>
-        <directList :directList="item"></directList>
+      <swiper-slide v-for="(item,index) in allPlace" :key='index'>
+        <!-- <directList :directList="item"></directList> -->
       </swiper-slide>
     </swiper>
   </div>
 </template>
 <script>
+import { getPlace, get } from '../../test/request/api.js'
 import mapboxgl from "mapbox-gl";
 import icon from "../assets/pin.png";
 import directList from "../components/list";
@@ -42,7 +43,9 @@ export default {
       },{
         addressPin: "Piazza dei Cinquecento, 00185 Roma RM, Italy",
         phone: "+39 800 305 357"
-      }]
+      }],
+      allPlace: [],
+      list: []
     };
   },
   computed: {
@@ -54,8 +57,51 @@ export default {
     this.init();
     console.log("Current Swiper instance object", this.swiper);
     this.swiper.slideTo(3, 1000, false);
+    // 获取并保存token
+    this.getToken()
+    // 请求所有站点
+    this.getPlace()
   },
   methods: {
+    // 获取并保存token
+    getToken () {
+      let url = decodeURI(window.location.href)
+      let index = url.indexOf('?')
+      let value = url.slice(index + 1)
+      let valueAry = value.split('=')
+      if (valueAry[0] !== 'token') { return }
+      window.localStorage.setItem('user', {
+        BearerToken: valueAry[1]
+      })
+    },
+    // 请求所有站点
+    async getPlace () {
+      let { data: { items } } = await getPlace({
+        'access_token': 'OLsleutsb2eiV4BCNAuk5IuuXZWA_R6Wdmtua6prg1c',
+        'sys.contentType.sys.id': 'location',
+        'include': '5'
+      })
+      let i = 0,
+        length = items.length
+      for (i; i < length; i++) {
+        this.allPlace.push({
+          title: items[i].fields.title,
+          address: items[i].fields.address,
+          longitude: items[i].fields.location.lon,
+          latitude: items[i].fields.location.lat,
+          phone: "+39 800 305 357"
+        })
+        this.list.push({
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'title': i,
+            'coordinates': [items[i].fields.location.lon, items[i].fields.location.lat]
+          }
+        })
+      }
+      console.log(this.list)
+    },
     // 初始化
     init() {
       let that = this;
@@ -76,35 +122,36 @@ export default {
         map.loadImage(icon, function(error, image) {
           if (error) throw error;
           map.addImage("cat", image);
-          map.addSource("earthquakes", {
-            type: "geojson",
-            // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
-            // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
-            data:
-              "https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson",
+          map.addSource('earthquakes', {
+            'type': 'geojson',
+            'data': {
+              'type': 'FeatureCollection',
+              'features': that.list
+            },
             cluster: true,
             clusterMaxZoom: 14, // Max zoom to cluster points on
             clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
           });
-          map.addLayer({
-            id: "clusters",
-            type: "circle",
-            source: "earthquakes",
-            filter: ["has", "point_count"],
-            paint: {
-              "circle-color": "#fff",
-              "circle-radius": 12,
-              "circle-stroke-width": 2,
-              "circle-stroke-color": "#00B398",
-              "circle-translate": [22, -36]
-            }
-          });
+          // data: "https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson",
+          // map.addLayer({
+          //   id: "clusters",
+          //   type: "circle",
+          //   source: "earthquakes",
+          //   filter: ["has", "point_count"],
+          //   paint: {
+          //     "circle-color": "#FFFFFF",
+          //     "circle-radius": 12,
+          //     "circle-stroke-width": 2,
+          //     "circle-stroke-color": "#00B398",
+          //     "circle-translate": [22, -36]
+          //   }
+          // });
 
           map.addLayer({
             id: "cluster-count",
             type: "symbol",
             source: "earthquakes",
-            filter: ["has", "point_count"],
+            // filter: ["has", "point_count"],
             layout: {
               "text-field": "{point_count_abbreviated}",
               "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
@@ -133,7 +180,7 @@ export default {
 <style scoped lang='less'>
 @import url("https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.css");
 .map {
-  
+
   .list {
     width: 100%;
     height: 3.26rem;
