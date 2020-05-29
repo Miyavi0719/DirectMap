@@ -3,7 +3,7 @@
     <div ref="basicMapbox" style="height:100%;width:100%;"></div>
     <!-- <pre id="info"></pre> -->
     <!-- <pre id='coordinates' class='coordinates'></pre> -->
-    <div class="list">
+    <div class="list" v-if="show === 'true'">
       <directList :directList="itemPlace"></directList>
     </div>
   </div>
@@ -31,6 +31,8 @@ export default {
       // },
       itemPlace: {},
       location: {},
+      show:'true'
+
     };
   },
   mounted() {
@@ -63,6 +65,8 @@ export default {
         longitude,
         latitude
       }
+      this.show = ary[3].split('=')[1]
+      //是否现实list
       console.log('456',this.location)
     },
     // 请求所有站点
