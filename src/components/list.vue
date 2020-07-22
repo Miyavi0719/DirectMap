@@ -5,10 +5,10 @@
       <img :src="img.IconAddressPin" alt="img" />
       <div class="add">{{ Lists.address }}</div>
     </div>
-    <div class="li">
+    <!-- <div class="li" v-show="Lists.phone !== ''">
       <img :src="img.IconPhone" alt="img" />
       <div class="phone">{{ Lists.phone }}</div>
-    </div>
+    </div> -->
     <div class="btn">
       Directions
     </div>
@@ -53,6 +53,7 @@ export default {
     justify-self: start;
     color: #666666;
     margin-bottom: 0.16rem;
+    align-items: center;
     .phone{
       color: #00B398;
       font-weight: bold;
