@@ -4,7 +4,7 @@
     <!-- <pre id="info"></pre> -->
     <!-- <pre id='coordinates' class='coordinates'></pre> -->
     <swiper class="list" ref="mySwiper" :options="swiperOptions">
-      <swiper-slide v-for="(item,index) in allPlace" :key='index'>
+      <swiper-slide v-for="(item,index) in allPlace" :key='index' v-show='allPlace[0].length>0'>
         <directList :directList="item"></directList>
       </swiper-slide>
     </swiper>
@@ -37,7 +37,7 @@
         index: 0,
         icon: icon,
         directList: [],
-        allPlace: [],
+        allPlace: [[],[],[],[],[],[],[]],
         list: []
       };
     },
@@ -98,6 +98,7 @@
           serviceItems = UTUDirectLocations(res.data, 'service-counter');
         }
         console.log(this.index,serviceItems)
+        this.allPlace = []
         this.init([serviceItems[0].fields.location.lon,serviceItems[0].fields.location.lat]);
         for(var i = 0;i<serviceItems.length;i++){
           this.allPlace.push({
