@@ -3,8 +3,8 @@
     <div ref="basicMapbox" style="height:100%;width:100%;"></div>
     <!-- <pre id="info"></pre> -->
     <!-- <pre id='coordinates' class='coordinates'></pre> -->
-    <swiper class="list" ref="mySwiper" :options="swiperOptions">
-      <swiper-slide v-for="(item,index) in allPlace" :key='index' v-show='allPlace[0].length>0'>
+    <swiper class="list" ref="mySwiper" :options="swiperOptions" v-show='allPlace.length > 0'>
+      <swiper-slide v-for="(item,index) in allPlace" :key='index'>
         <directList :directList="item"></directList>
       </swiper-slide>
     </swiper>
@@ -31,46 +31,75 @@
           // centeredSlides: true,
           spaceBetween: 0,
           // grabCursor: true,
-          autoplay: false
+          autoplay: false,
+          observer:true,
+          observeParents:true,
           // Some Swiper option/callback...
         },
         index: 0,
         icon: icon,
         directList: [],
-        allPlace: [[],[],[],[],[],[],[]],
+        allPlace: [],
         list: []
       };
     },
-    computed: {
-      swiper() {
-        return this.$refs.mySwiper.$swiper;
-      }
-    },
+    // computed: {
+    //   swiper() {
+    //     return this.$refs.mySwiper.$swiper;
+    //   }
+    // },
     mounted() {
 
-      console.log("Current Swiper instance object", this.swiper);
-      this.swiper.slideTo(3, 1000, false);
+      // console.log("Current Swiper instance object", this.swiper);
+      // this.swiper.slideTo(0, 1000, false);
       // 获取并保存token
       this.getToken()
+      const mySwiper = new Swiper('.list',this.swiperOptions)
       // 请求所有站点
-      this.getPlace()
+
     },
     methods: {
       // 获取并保存token
       getToken() {
         let url = decodeURI(window.location.href)
+        // let url = window.location.href
         console.log(url)
         let index = url.indexOf('?')
         let value = url.slice(index + 1)
         let valueAry = value.split('=')
         console.log(valueAry)
-        if (valueAry[0] !== 'token') {
-          return
+        if (valueAry[0] == 'token') {
+          window.localStorage.setItem('user', {
+            BearerToken: valueAry[1]
+          })
+         this.index = valueAry[2]
+         this.getPlace()
+        }else if(valueAry[0] == 'store'){
+
+          let stroeArr = valueAry[1].split('|')
+          let stroe = []
+          // this.init([serviceItems[0].fields.location.lon,serviceItems[0].fields.location.lat]);
+          this.allPlace = []
+          stroeArr.map(item => {
+            // console.log()
+            stroe.push(JSON.parse(item.replace(/%3A/g,":")))
+            this.allPlace.push(JSON.parse(item.replace(/%3A/g,":")))
+          })
+          this.init([stroe[0].longitude,stroe[0].latitude]);
+          console.log(stroe)
+
+          for(var i = 0;i<stroe.length;i++){
+            this.list.push({
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'title': 0,
+                'coordinates': [stroe[i].longitude, stroe[i].latitude]
+              }
+            })
+          }
         }
-        window.localStorage.setItem('user', {
-          BearerToken: valueAry[1]
-        })
-        this.index = valueAry[2]
+
       },
       // 请求所有站点
       async getPlace() {
