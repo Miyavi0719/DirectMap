@@ -32,8 +32,8 @@
           spaceBetween: 0,
           // grabCursor: true,
           autoplay: false,
-          observer:true,
-          observeParents:true,
+          observer:false,
+          observeParents:false,
           // Some Swiper option/callback...
         },
         index: 0,
@@ -54,7 +54,7 @@
       // this.swiper.slideTo(0, 1000, false);
       // 获取并保存token
       this.getToken()
-      const mySwiper = new Swiper('.list',this.swiperOptions)
+      
       // 请求所有站点
 
     },
@@ -74,6 +74,16 @@
           })
          this.index = valueAry[2]
          this.getPlace()
+         const mySwiper = new Swiper('.list',{
+             slidesPerView: "auto",
+             // centeredSlides: true,
+             spaceBetween: 0,
+             // grabCursor: true,
+             autoplay: false,
+             observer:true,
+             observeParents:true,
+             // Some Swiper option/callback...
+           })
         }else if(valueAry[0] == 'store'){
 
           let stroeArr = valueAry[1].split('|')
@@ -98,6 +108,16 @@
               }
             })
           }
+          const mySwiper = new Swiper('.list',{
+              slidesPerView: "auto",
+              // centeredSlides: true,
+              spaceBetween: 0,
+              // grabCursor: true,
+              autoplay: false,
+              observer:false,
+              observeParents:false,
+              // Some Swiper option/callback...
+            })
         }
 
       },
