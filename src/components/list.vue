@@ -9,7 +9,7 @@
       <img :src="img.IconPhone" alt="img" />
       <div class="phone">{{ Lists.phone }}</div>
     </div> -->
-    <div class="btn">
+    <div class="btn" @click="directions(Lists.longitude,Lists.latitude)">
       Directions
     </div>
   </div>
@@ -30,6 +30,11 @@ export default {
   computed: {
     Lists () {
       return this.directList
+    }
+  },
+  methods:{
+    directions(lon,lat){
+      this.$emit('directions',lon,lat)
     }
   }
 };

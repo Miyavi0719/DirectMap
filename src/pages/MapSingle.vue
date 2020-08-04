@@ -5,7 +5,7 @@
     <!-- <pre id='coordinates' class='coordinates'></pre> -->
     <swiper class="list" ref="mySwiper" :options="swiperOptions" v-show='allPlace.length > 0'>
       <swiper-slide v-for="(item,index) in allPlace" :key='index'>
-        <directList :directList="item"></directList>
+        <directList @directions='directions' :directList="item"></directList>
       </swiper-slide>
     </swiper>
   </div>
@@ -32,30 +32,29 @@
           spaceBetween: 0,
           // grabCursor: true,
           autoplay: false,
-          observer:false,
-          observeParents:false,
+          observer: false,
+          observeParents: false,
           // Some Swiper option/callback...
         },
         index: 0,
         icon: icon,
         directList: [],
         allPlace: [],
-        list: []
+        list: [],
+        map:null,
+        title:''
       };
     },
-    // computed: {
-    //   swiper() {
-    //     return this.$refs.mySwiper.$swiper;
-    //   }
-    // },
-    mounted() {
+    created() {
 
-      // console.log("Current Swiper instance object", this.swiper);
-      // this.swiper.slideTo(0, 1000, false);
-      // 获取并保存token
       this.getToken()
-      
-      // 请求所有站点
+      const mySwiper = new Swiper('.list', {
+        slidesPerView: "auto",
+        spaceBetween: 0,
+        autoplay: false,
+        observer: true,
+        observeParents: true,
+      })
 
     },
     methods: {
@@ -72,33 +71,23 @@
           window.localStorage.setItem('user', {
             BearerToken: valueAry[1]
           })
-         this.index = valueAry[2]
-         this.getPlace()
-         const mySwiper = new Swiper('.list',{
-             slidesPerView: "auto",
-             // centeredSlides: true,
-             spaceBetween: 0,
-             // grabCursor: true,
-             autoplay: false,
-             observer:true,
-             observeParents:true,
-             // Some Swiper option/callback...
-           })
-        }else if(valueAry[0] == 'store'){
+          this.index = valueAry[2]
+          this.getPlace()
+
+        } else if (valueAry[0] == 'store') {
 
           let stroeArr = valueAry[1].split('|')
           let stroe = []
-          // this.init([serviceItems[0].fields.location.lon,serviceItems[0].fields.location.lat]);
           this.allPlace = []
           stroeArr.map(item => {
             // console.log()
-            stroe.push(JSON.parse(item.replace(/%3A/g,":")))
-            this.allPlace.push(JSON.parse(item.replace(/%3A/g,":")))
+            stroe.push(JSON.parse(item.replace(/%3A/g, ":")))
+            this.allPlace.push(JSON.parse(item.replace(/%3A/g, ":")))
           })
-          this.init([stroe[0].longitude,stroe[0].latitude]);
+          this.init([stroe[0].longitude, stroe[0].latitude]);
           console.log(stroe)
 
-          for(var i = 0;i<stroe.length;i++){
+          for (var i = 0; i < stroe.length; i++) {
             this.list.push({
               'type': 'Feature',
               'geometry': {
@@ -108,18 +97,13 @@
               }
             })
           }
-          const mySwiper = new Swiper('.list',{
-              slidesPerView: "auto",
-              // centeredSlides: true,
-              spaceBetween: 0,
-              // grabCursor: true,
-              autoplay: false,
-              observer:false,
-              observeParents:false,
-              // Some Swiper option/callback...
-            })
         }
 
+      },
+      directions(lon, lat) {
+        this.map.flyTo({
+          center: [lon,lat]
+        });
       },
       // 请求所有站点
       async getPlace() {
@@ -138,7 +122,6 @@
             return item;
           }
         })
-        // serviceItems = UTUDirectLocations(res.data, 'customs-office');
 
         if (this.index == 0) {
           serviceItems = UTUDirectLocations(res.data, 'customs-office');
@@ -146,10 +129,10 @@
         } else {
           serviceItems = UTUDirectLocations(res.data, 'service-counter');
         }
-        console.log(this.index,serviceItems)
+
         this.allPlace = []
-        this.init([serviceItems[0].fields.location.lon,serviceItems[0].fields.location.lat]);
-        for(var i = 0;i<serviceItems.length;i++){
+        this.init([serviceItems[0].fields.location.lon, serviceItems[0].fields.location.lat]);
+        for (var i = 0; i < serviceItems.length; i++) {
           this.allPlace.push({
             // icon: this.$images.iconAddress,
             title: serviceItems[i].fields.title,
@@ -168,27 +151,7 @@
             }
           })
         }
-
-        //   let i = 0,
-        //     length = items.length
-        //   for (i; i < length; i++) {
-        //     this.allPlace.push({
-        //       title: items[i].fields.title,
-        //       address: items[i].fields.address,
-        //       longitude: items[i].fields.location.lon,
-        //       latitude: items[i].fields.location.lat,
-        //       phone: "+39 800 305 357"
-        //     })
-        //     this.list.push({
-        //       'type': 'Feature',
-        //       'geometry': {
-        //         'type': 'Point',
-        //         'title': i,
-        //         'coordinates': [items[i].fields.location.lon, items[i].fields.location.lat]
-        //       }
-        //     })
-        // },
-        // 初始化
+        
       },
       init(center) {
         let that = this;
@@ -197,61 +160,37 @@
         var coordinates = document.getElementById("coordinates");
         const map = new mapboxgl.Map({
           container: this.$refs.basicMapbox,
-          style: "mapbox://styles/mapbox/navigation-guidance-day-v4",
+          style: "mapbox://styles/mapbox/streets-v11",
           center: center, // 设置地图中心
-          zoom: 3 // 设置地图比例
+          zoom: 12 // 设置地图比例
         });
 
         map.on("load", function() {
-          // Add a new source from our GeoJSON data and
-          // set the 'cluster' option to true. GL-JS will
-          // add the point_count property to your source data.
-          map.loadImage(icon, function(error, image) {
-            if (error) throw error;
-            map.addImage("cat", image);
-            map.addSource('earthquakes', {
-              'type': 'geojson',
-              'data': {
-                'type': 'FeatureCollection',
-                'features': that.list
-              },
-              cluster: true,
-              clusterMaxZoom: 14, // Max zoom to cluster points on
-              clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
-            });
-            // data: "https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson",
-            // map.addLayer({
-            //   id: "clusters",
-            //   type: "circle",
-            //   source: "earthquakes",
-            //   filter: ["has", "point_count"],
-            //   paint: {
-            //     "circle-color": "#FFFFFF",
-            //     "circle-radius": 12,
-            //     "circle-stroke-width": 2,
-            //     "circle-stroke-color": "#00B398",
-            //     "circle-translate": [22, -36]
-            //   }
-            // });
-
-            map.addLayer({
-              id: "cluster-count",
-              type: "symbol",
-              source: "earthquakes",
-              // filter: ["has", "point_count"],
-              layout: {
-                "text-field": "{point_count_abbreviated}",
-                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-                "text-size": 14,
-                "text-offset": [1.5, -2.5],
-                "text-optional": true,
-                "icon-image": "cat",
-                "icon-size": 0.5,
-                "icon-anchor": "bottom",
-              }
-            });
-          });
+          map.loadImage(
+            that.icon,
+            function(error, image) {
+              if (error) throw error;
+              map.addImage("cat", image);
+              map.addSource("point", {
+                type: "geojson",
+                data: {
+                  type: "FeatureCollection",
+                  features: that.list
+                }
+              });
+              map.addLayer({
+                id: "points",
+                type: "symbol",
+                source: "point",
+                layout: {
+                  "icon-image": "cat",
+                  "icon-size": 0.5
+                }
+              });
+            }
+          );
         });
+        this.map = map
       }
     },
     components: {

@@ -20,6 +20,7 @@ const setHtmlFontSize = () => {
 window.onresize = setHtmlFontSize;
 setHtmlFontSize();
 Vue.use(VueAwesomeSwiper, /* { default options with global component } */)
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

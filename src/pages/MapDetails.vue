@@ -105,7 +105,7 @@ export default {
       var coordinates = document.getElementById("coordinates");
       const map = new mapboxgl.Map({
         container: this.$refs.basicMapbox,
-        style: "mapbox://styles/mapbox/navigation-guidance-day-v4",
+        style: "mapbox://styles/mapbox/streets-v11",
         center: [that.location.longitude, that.location.latitude], // 设置地图中心
         zoom: 12 // 设置地图比例
       });
@@ -128,6 +128,13 @@ export default {
                       coordinates: [that.location.longitude, that.location.latitude]
                     }
                   }
+                  // {
+                  //   type: "Feature",
+                  //   geometry: {
+                  //     type: "Point",
+                  //     coordinates: [9.723239, 43.6497]
+                  //   }
+                  // }
                 ]
               }
             });
