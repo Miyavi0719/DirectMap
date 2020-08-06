@@ -87,24 +87,6 @@ export default {
                       type: "Point",
                       coordinates: [119.545181, 39.91444]
                     }
-                  },{
-                    type: "Feature",
-                    geometry: {
-                      type: "Point",
-                      coordinates: [0, 0]
-                    }
-                  },{
-                    type: "Feature",
-                    geometry: {
-                      type: "Point",
-                      coordinates: [118.545181, 38.91444]
-                    }
-                  },{
-                    type: "Feature",
-                    geometry: {
-                      type: "Point",
-                      coordinates: [117.545181, 37.91444]
-                    }
                   }
                 ]
               }

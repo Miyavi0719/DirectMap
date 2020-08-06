@@ -1,8 +1,6 @@
 <template>
   <div style="height:100vh;width:100%;" class="map">
     <div ref="basicMapbox" style="height:100%;width:100%;"></div>
-    <!-- <pre id="info"></pre> -->
-    <!-- <pre id='coordinates' class='coordinates'></pre> -->
     <swiper class="list" ref="mySwiper" :options="swiperOptions" v-show='allPlace.length > 0'>
       <swiper-slide v-for="(item,index) in allPlace" :key='index'>
         <directList @directions='directions' :directList="item"></directList>
@@ -32,8 +30,8 @@
           spaceBetween: 0,
           // grabCursor: true,
           autoplay: false,
-          observer: false,
-          observeParents: false,
+          observer: true,
+          observeParents: true,
           // Some Swiper option/callback...
         },
         index: 0,
@@ -41,20 +39,18 @@
         directList: [],
         allPlace: [],
         list: [],
-        map:null,
-        title:''
+        map: null,
+        title: ''
       };
     },
     created() {
+      this.$nextTick(() => {
+        this.getToken()
 
-      this.getToken()
-      const mySwiper = new Swiper('.list', {
-        slidesPerView: "auto",
-        spaceBetween: 0,
-        autoplay: false,
-        observer: true,
-        observeParents: true,
+
       })
+
+
 
     },
     methods: {
@@ -80,13 +76,16 @@
           let stroe = []
           this.allPlace = []
           stroeArr.map(item => {
-            // console.log()
             stroe.push(JSON.parse(item.replace(/%3A/g, ":")))
             this.allPlace.push(JSON.parse(item.replace(/%3A/g, ":")))
           })
-          this.init([stroe[0].longitude, stroe[0].latitude]);
-          console.log(stroe)
-
+          // const mySwiper = new Swiper('.list', {
+          //   slidesPerView: "auto",
+          //   spaceBetween: 0,
+          //   autoplay: false,
+          //   observer: true,
+          //   observeParents: true,
+          // })
           for (var i = 0; i < stroe.length; i++) {
             this.list.push({
               'type': 'Feature',
@@ -97,12 +96,15 @@
               }
             })
           }
+
+          this.init([stroe[0].longitude, stroe[0].latitude]);
+
         }
 
       },
       directions(lon, lat) {
         this.map.flyTo({
-          center: [lon,lat]
+          center: [lon, lat]
         });
       },
       // 请求所有站点
@@ -142,6 +144,7 @@
             // location: item.fields.location,
             // image:item.images
           })
+
           this.list.push({
             'type': 'Feature',
             'geometry': {
@@ -150,16 +153,26 @@
               'coordinates': [serviceItems[i].fields.location.lon, serviceItems[i].fields.location.lat]
             }
           })
+          console.log('list', this.list)
         }
-        
+        // const mySwiper = new Swiper('.list', {
+        //   slidesPerView: "auto",
+        //   spaceBetween: 0,
+        //   autoplay: false,
+        //   observer: true,
+        //   observeParents: true,
+        // })
+
       },
       init(center) {
         let that = this;
         mapboxgl.accessToken =
           "pk.eyJ1IjoibWl5YXZpbGl1IiwiYSI6ImNrN2p3NXM4cjBhdWgzb2sxZTVycDJldTgifQ.o96fERX1NdQp0FWU3_PcSQ";
         var coordinates = document.getElementById("coordinates");
+        console.log(that.$refs)
+        console.log(that.$refs.basicMapbox)
         const map = new mapboxgl.Map({
-          container: this.$refs.basicMapbox,
+          container: that.$refs.basicMapbox,
           style: "mapbox://styles/mapbox/streets-v11",
           center: center, // 设置地图中心
           zoom: 12 // 设置地图比例
