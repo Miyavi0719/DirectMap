@@ -1,9 +1,9 @@
 <template>
   <div style="height:100vh;width:100%;" class="map">
     <div ref="basicMapbox" style="height:100%;width:100%;"></div>
-    <swiper class="list" ref="mySwiper" :options="swiperOptions" v-show='allPlace.length > 0'>
+    <swiper class="list" ref="mySwiper" :options="swiperOptions" v-show='allPlace.length > 0' @click-slide='directions1'>
       <swiper-slide v-for="(item,index) in allPlace" :key='index'>
-        <directList @directions='directions' :directList="item"></directList>
+        <directList :directList="item"></directList>
       </swiper-slide>
     </swiper>
   </div>
@@ -28,10 +28,27 @@
           slidesPerView: "auto",
           // centeredSlides: true,
           spaceBetween: 0,
+          loop : true,
           // grabCursor: true,
           autoplay: false,
           observer: true,
           observeParents: true,
+          on: {
+            //监听滑动切换事件，返回swiper对象
+            slideChange: () => {
+              let swiper = this.$refs.mySwiper.swiperInstance.realIndex;
+
+              console.log(this.$refs.mySwiper.swiperInstance,this.list,swiper,swiper >= 0)
+              if(swiper >= 0){
+                let center = this.list[swiper].geometry.coordinates
+                console.log(swiper,center); //滑动打印当前索引
+                this.map.flyTo({
+                  center: center
+                });
+              }
+
+            },
+          }
           // Some Swiper option/callback...
         },
         index: 0,
@@ -46,12 +63,12 @@
     created() {
       this.$nextTick(() => {
         this.getToken()
-
-
       })
-
-
-
+    },
+    computed: {
+      swiper() {
+        return this.$refs.mySwiper.swiper;
+      }
     },
     methods: {
       // 获取并保存token
@@ -96,16 +113,19 @@
               }
             })
           }
-
+          if(this.list.length <=1){
+            this.swiperOptions.loop = false
+          }
           this.init([stroe[0].longitude, stroe[0].latitude]);
 
         }
 
       },
-      directions(lon, lat) {
-        this.map.flyTo({
-          center: [lon, lat]
-        });
+      directions1(index) {
+        console.log(index)
+        // this.map.flyTo({
+        //   center: [lon, lat]
+        // });
       },
       // 请求所有站点
       async getPlace() {
@@ -154,6 +174,9 @@
             }
           })
           console.log('list', this.list)
+          if(this.list.length <=1){
+            this.swiperOptions.loop = false
+          }
         }
         // const mySwiper = new Swiper('.list', {
         //   slidesPerView: "auto",

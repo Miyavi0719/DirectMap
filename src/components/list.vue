@@ -9,9 +9,9 @@
       <img :src="img.IconPhone" alt="img" />
       <div class="phone">{{ Lists.phone }}</div>
     </div> -->
-    <div class="btn" @click="directions(Lists.longitude,Lists.latitude)">
+    <!-- <div class="btn" @click="directions(Lists.longitude,Lists.latitude)">
       Directions
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
