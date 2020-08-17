@@ -28,7 +28,7 @@
           slidesPerView: "auto",
           // centeredSlides: true,
           spaceBetween: 0,
-          loop : true,
+          loop: true,
           // grabCursor: true,
           autoplay: false,
           observer: true,
@@ -38,10 +38,10 @@
             slideChange: () => {
               let swiper = this.$refs.mySwiper.swiperInstance.realIndex;
 
-              console.log(this.$refs.mySwiper.swiperInstance,this.list,swiper,swiper >= 0)
-              if(swiper >= 0){
+              // console.log(this.$refs.mySwiper.swiperInstance,this.list,swiper,swiper >= 0)
+              if (swiper >= 0) {
                 let center = this.list[swiper].geometry.coordinates
-                console.log(swiper,center); //滑动打印当前索引
+                console.log(swiper, center); //滑动打印当前索引
                 this.map.flyTo({
                   center: center
                 });
@@ -113,8 +113,10 @@
               }
             })
           }
-          if(this.list.length <=1){
+          if (this.list.length <= 1) {
             this.swiperOptions.loop = false
+          } else {
+            this.swiperOptions.loop = true
           }
           this.init([stroe[0].longitude, stroe[0].latitude]);
 
@@ -174,9 +176,12 @@
             }
           })
           console.log('list', this.list)
-          if(this.list.length <=1){
-            this.swiperOptions.loop = false
-          }
+        }
+        if (this.list.length <= 1) {
+          console.log('loop', this.list.length)
+          this.swiperOptions.loop = false
+        } else {
+          this.swiperOptions.loop = true
         }
         // const mySwiper = new Swiper('.list', {
         //   slidesPerView: "auto",
@@ -198,7 +203,7 @@
           container: that.$refs.basicMapbox,
           style: "mapbox://styles/mapbox/streets-v11",
           center: center, // 设置地图中心
-          zoom: 12 // 设置地图比例
+          zoom: 15 // 设置地图比例
         });
 
         map.on("load", function() {
