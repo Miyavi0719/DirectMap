@@ -148,7 +148,7 @@
         })
 
         if (this.index == 0) {
-          serviceItems = UTUDirectLocations(res.data, 'customs-office');
+          serviceItems = UTUDirectLocations(res.data, 'envelope-and-sticker-collection');
 
         } else {
           serviceItems = UTUDirectLocations(res.data, 'service-counter');

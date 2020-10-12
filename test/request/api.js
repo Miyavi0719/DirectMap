@@ -3,7 +3,7 @@ import request from './request.js'
 export const getPlace = (data) => {
     return request({
         method: 'GET',
-        url: 'https://cdn.contentful.com/spaces/u0ol5so5qhwk/environments/master/entries',
+        url: 'https://cdn.contentful.com/spaces/u0ol5so5qhwk/environments/stage/entries',
         params: data
     });
 };
